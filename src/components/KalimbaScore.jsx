@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const PIXELS_PER_BEAT = 48;
+const HIT_WINDOW_BEATS = 0.12; // 判定ライン通過と見なすビート幅（片側）
+const HITLINE_FROM_BOTTOM_PX = 0; // 判定ラインを表示エリア最下部に配置（必要ならここでオフセット調整）
 const OCTAVE_SHIFT = 0;
 const A4_FREQUENCY = 440;
 const NOTE_OFFSETS_FROM_A = {
@@ -168,6 +170,7 @@ function useKalimbaPlayer(tineFrequencies) {
 
 function KalimbaScore({ score }) {
   const scrollRef = useRef(null);
+  const [activeNoteIds, setActiveNoteIds] = useState(new Set());
   const beatsPerMeasure = score.timeSignature.beats;
   const fallbackBeats = score.notes.length
     ? Math.max(...score.notes.map((note) => note.start + note.duration))
@@ -204,12 +207,24 @@ function KalimbaScore({ score }) {
 
   useEffect(() => {
     if (!isPlaying || !scrollRef.current) {
+      setActiveNoteIds(new Set());
       return;
     }
     let rafId;
     const scrollEl = scrollRef.current;
     const tick = () => {
       const beatPos = getCurrentBeat();
+
+      // ノーツが判定ライン付近かどうかを算出
+      const windowBeats = HIT_WINDOW_BEATS;
+      const nextActive = new Set();
+      score.notes.forEach((note) => {
+        if (Math.abs(beatPos - note.start) <= windowBeats) {
+          nextActive.add(note.id);
+        }
+      });
+      setActiveNoteIds(nextActive);
+
       const baseBottom = scrollEl.scrollHeight - scrollEl.clientHeight;
       const target = Math.max(0, baseBottom - beatPos * PIXELS_PER_BEAT);
       scrollEl.scrollTop = target;
@@ -218,8 +233,9 @@ function KalimbaScore({ score }) {
     rafId = requestAnimationFrame(tick);
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
+      setActiveNoteIds(new Set());
     };
-  }, [getCurrentBeat, isPlaying]);
+  }, [getCurrentBeat, isPlaying, score.notes]);
 
   return (
     <section className="kalimba-score">
@@ -266,7 +282,14 @@ function KalimbaScore({ score }) {
           </label>
         </div>
       </div>
-      <div className="score-surface">
+        <div className="score-surface">
+          <div
+            className="judge-line"
+            style={{
+              bottom: `${HITLINE_FROM_BOTTOM_PX}px`,
+            }}
+            aria-hidden
+          />          
         <div ref={scrollRef} className="score-scroll">
           <div className="measure-rail" style={{ height: gridHeight }}>
             {Array.from({ length: measureCount }).map((_, index) => (
@@ -281,24 +304,26 @@ function KalimbaScore({ score }) {
           </div>
           <div
             className="grid-wrapper"
-            style={{
-              height: gridHeight,
-              '--px-per-beat': `${PIXELS_PER_BEAT}px`,
-              '--beats-per-measure': beatsPerMeasure,
-              '--tine-count': KALIMBA_TINES.length,
-            }}
-          >
-            <div className="score-grid">
-              {notesByTine.map((trackNotes, tineIndex) => (
-                <div key={KALIMBA_TINES[tineIndex].note + tineIndex} className="tine-track">
-                  {trackNotes.map((note) => {
-                    const noteHeight = Math.max(note.duration * PIXELS_PER_BEAT - 6, 18);
+          style={{
+            height: gridHeight,
+            '--px-per-beat': `${PIXELS_PER_BEAT}px`,
+            '--beats-per-measure': beatsPerMeasure,
+            '--tine-count': KALIMBA_TINES.length,
+          }}
+        >
+          <div className="score-grid">
+            {notesByTine.map((trackNotes, tineIndex) => (
+              <div key={KALIMBA_TINES[tineIndex].note + tineIndex} className="tine-track">
+                {trackNotes.map((note) => {
+                  const noteHeight = Math.max(note.duration * PIXELS_PER_BEAT - 6, 18);
                     const noteTop = gridHeight - (note.start + note.duration) * PIXELS_PER_BEAT;
 
                     return (
                       <div
                         key={note.id}
-                        className={`note note-${note.style ?? 'solid'}`}
+                        className={`note note-${note.style ?? 'solid'}${
+                          activeNoteIds.has(note.id) ? ' is-active' : ''
+                        }`}
                         style={{
                           top: noteTop,
                           height: noteHeight,
