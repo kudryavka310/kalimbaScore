@@ -168,7 +168,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  bottom: 80px;
+  bottom: 90px;
   width: 100%;
   background:
     linear-gradient(90deg, transparent 0%, rgba(249, 115, 22, 0.45) 16%, rgba(251, 146, 60, 0.9) 50%, transparent 100%),
@@ -205,17 +205,40 @@
   overflow: hidden;
 }
 
+.score-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--px-per-beat) * var(--beats-per-measure) - 2px),
+    rgba(17, 24, 39, 0.22) calc(var(--px-per-beat) * var(--beats-per-measure) - 2px),
+    rgba(17, 24, 39, 0.22) calc(var(--px-per-beat) * var(--beats-per-measure)),
+    transparent calc(var(--px-per-beat) * var(--beats-per-measure))
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
 .tine-track {
   position: relative;
   border-left: 1px solid #f3f4f6;
   border-right: 1px solid #fef2f2;
+  background: #fff;
+}
+
+.tine-track:nth-child(3n) {
+  background: #ededf0;
 }
 
 .note {
   position: absolute;
   left: 6px;
   right: 6px;
-  border-radius: 999px;
+  border-radius: 0;
+  /* 鉛筆のように先端を尖らせる */
+  clip-path: polygon(50% 0, 100% 14px, 100% 100%, 0 100%, 0 14px);
   background: #111827;
   color: #fff;
   display: flex;
@@ -246,6 +269,7 @@
 .note-hollow {
   background: #fff;
   border: 2px solid #111827;
+  border-radius: 0;
   color: #111827;
   box-shadow: none;
 }
@@ -287,6 +311,11 @@
   align-items: center;
   font-size: 0.78rem;
   color: #4b5563;
+  background: #f9fafb;
+}
+
+.tine-label:nth-child(3n) {
+  background: #e7e8ec;
 }
 
 .tine-label .degree {
