@@ -285,9 +285,6 @@ function KalimbaScore({ score }) {
         <div className="score-surface">
           <div
             className="judge-line"
-            style={{
-              bottom: `${HITLINE_FROM_BOTTOM_PX}px`,
-            }}
             aria-hidden
           />          
         <div ref={scrollRef} className="score-scroll">
