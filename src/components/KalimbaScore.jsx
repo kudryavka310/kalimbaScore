@@ -4,6 +4,7 @@ const PIXELS_PER_BEAT = 48;
 const HIT_WINDOW_BEATS = 0.12; // 判定ライン通過と見なすビート幅（片側）
 const HITLINE_FROM_BOTTOM_PX = 0; // 判定ラインを表示エリア最下部に配置（必要ならここでオフセット調整）
 const OCTAVE_SHIFT = 0;
+const END_PADDING_BEATS = 13; // 末尾の余白ビート
 const A4_FREQUENCY = 440;
 const NOTE_OFFSETS_FROM_A = {
   C: -9,
@@ -171,13 +172,15 @@ function useKalimbaPlayer(tineFrequencies) {
 function KalimbaScore({ score }) {
   const scrollRef = useRef(null);
   const [activeNoteIds, setActiveNoteIds] = useState(new Set());
+  const [paddingBeats, setPaddingBeats] = useState(END_PADDING_BEATS);
   const beatsPerMeasure = score.timeSignature.beats;
   const fallbackBeats = score.notes.length
     ? Math.max(...score.notes.map((note) => note.start + note.duration))
     : beatsPerMeasure;
   const totalBeats = score.totalBeats ? score.totalBeats : fallbackBeats;
-  const measureCount = Math.ceil(totalBeats / beatsPerMeasure);
-  const gridHeight = totalBeats * PIXELS_PER_BEAT;
+  const totalBeatsWithPadding = totalBeats + paddingBeats;
+  const measureCount = Math.ceil(totalBeatsWithPadding / beatsPerMeasure);
+  const gridHeight = totalBeatsWithPadding * PIXELS_PER_BEAT;
 
   const notesByTine = KALIMBA_TINES.map((_, index) =>
     score.notes.filter((note) => note.tine === index),
@@ -204,6 +207,22 @@ function KalimbaScore({ score }) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [gridHeight, score]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return undefined;
+
+    const updatePadding = () => {
+      const visiblePx = el.clientHeight ?? 0;
+      const judgeLinePx = Math.max(visiblePx - HITLINE_FROM_BOTTOM_PX, 0);
+      const neededBeats = Math.ceil(judgeLinePx / PIXELS_PER_BEAT);
+      setPaddingBeats(Math.max(END_PADDING_BEATS, neededBeats));
+    };
+
+    updatePadding();
+    window.addEventListener('resize', updatePadding);
+    return () => window.removeEventListener('resize', updatePadding);
+  }, [score]);
 
   useEffect(() => {
     if (!isPlaying || !scrollRef.current) {
@@ -261,7 +280,7 @@ function KalimbaScore({ score }) {
                 : play(
                     score.notes,
                     score.tempo,
-                    totalBeats,
+                    totalBeats, // 再生は実ビート数までで止める（余白ビートは表示専用）
                     volume,
                   )
             }
@@ -310,7 +329,10 @@ function KalimbaScore({ score }) {
         >
           <div className="score-grid">
             {notesByTine.map((trackNotes, tineIndex) => (
-              <div key={KALIMBA_TINES[tineIndex].note + tineIndex} className="tine-track">
+              <div
+                key={KALIMBA_TINES[tineIndex].note + tineIndex}
+                className={`tine-track note-${KALIMBA_TINES[tineIndex].note}`}
+              >
                 {trackNotes.map((note) => {
                   const noteHeight = Math.max(note.duration * PIXELS_PER_BEAT - 6, 18);
                     const noteTop = gridHeight - (note.start + note.duration) * PIXELS_PER_BEAT;
@@ -339,7 +361,10 @@ function KalimbaScore({ score }) {
           <div className="footer-spacer" aria-hidden />
           <div className="tine-footer" style={{ '--tine-count': KALIMBA_TINES.length }}>
             {KALIMBA_TINES.map((tine, index) => (
-              <div key={`label-${tine.note}-${index}`} className="tine-label">
+              <div
+                key={`label-${tine.note}-${index}`}
+                className={`tine-label note-${tine.note}`}
+              >
                 <span className="degree">{tine.degree}</span>
                 <span className="note-name">
                   {tine.note}
