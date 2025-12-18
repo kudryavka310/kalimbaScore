@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-const PIXELS_PER_BEAT = 48;
+const BASE_PIXELS_PER_BEAT = 48;
 const HIT_WINDOW_BEATS = 0.12; // 判定ライン通過と見なすビート幅（片側）
 const HITLINE_FROM_BOTTOM_PX = 0; // 判定ラインを表示エリア最下部に配置（必要ならここでオフセット調整）
 const OCTAVE_SHIFT = 0;
@@ -173,6 +173,7 @@ function KalimbaScore({ score }) {
   const scrollRef = useRef(null);
   const [activeNoteIds, setActiveNoteIds] = useState(new Set());
   const [paddingBeats, setPaddingBeats] = useState(END_PADDING_BEATS);
+  const [displaySpeed, setDisplaySpeed] = useState(1);
   const beatsPerMeasure = score.timeSignature.beats;
   const fallbackBeats = score.notes.length
     ? Math.max(...score.notes.map((note) => note.start + note.duration))
@@ -180,7 +181,8 @@ function KalimbaScore({ score }) {
   const totalBeats = score.totalBeats ? score.totalBeats : fallbackBeats;
   const totalBeatsWithPadding = totalBeats + paddingBeats;
   const measureCount = Math.ceil(totalBeatsWithPadding / beatsPerMeasure);
-  const gridHeight = totalBeatsWithPadding * PIXELS_PER_BEAT;
+  const pxPerBeat = BASE_PIXELS_PER_BEAT * displaySpeed;
+  const gridHeight = totalBeatsWithPadding * pxPerBeat;
 
   const notesByTine = KALIMBA_TINES.map((_, index) =>
     score.notes.filter((note) => note.tine === index),
@@ -202,6 +204,12 @@ function KalimbaScore({ score }) {
     setPlayerVolume(clamped);
   };
 
+  const handleDisplaySpeedChange = (event) => {
+    const value = Number(event.target.value);
+    const clamped = Math.min(Math.max(value, 0.8), 3);
+    setDisplaySpeed(clamped);
+  };
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -212,17 +220,17 @@ function KalimbaScore({ score }) {
     const el = scrollRef.current;
     if (!el) return undefined;
 
-    const updatePadding = () => {
-      const visiblePx = el.clientHeight ?? 0;
-      const judgeLinePx = Math.max(visiblePx - HITLINE_FROM_BOTTOM_PX, 0);
-      const neededBeats = Math.ceil(judgeLinePx / PIXELS_PER_BEAT);
-      setPaddingBeats(Math.max(END_PADDING_BEATS, neededBeats));
-    };
+      const updatePadding = () => {
+        const visiblePx = el.clientHeight ?? 0;
+        const judgeLinePx = Math.max(visiblePx - HITLINE_FROM_BOTTOM_PX, 0);
+        const neededBeats = Math.ceil(judgeLinePx / pxPerBeat);
+        setPaddingBeats(Math.max(END_PADDING_BEATS, neededBeats));
+      };
 
-    updatePadding();
-    window.addEventListener('resize', updatePadding);
-    return () => window.removeEventListener('resize', updatePadding);
-  }, [score]);
+      updatePadding();
+      window.addEventListener('resize', updatePadding);
+      return () => window.removeEventListener('resize', updatePadding);
+  }, [pxPerBeat, score]);
 
   useEffect(() => {
     if (!isPlaying || !scrollRef.current) {
@@ -245,7 +253,7 @@ function KalimbaScore({ score }) {
       setActiveNoteIds(nextActive);
 
       const baseBottom = scrollEl.scrollHeight - scrollEl.clientHeight;
-      const target = Math.max(0, baseBottom - beatPos * PIXELS_PER_BEAT);
+      const target = Math.max(0, baseBottom - beatPos * pxPerBeat);
       scrollEl.scrollTop = target;
       rafId = requestAnimationFrame(tick);
     };
@@ -254,7 +262,7 @@ function KalimbaScore({ score }) {
       if (rafId) cancelAnimationFrame(rafId);
       setActiveNoteIds(new Set());
     };
-  }, [getCurrentBeat, isPlaying, score.notes]);
+  }, [getCurrentBeat, isPlaying, pxPerBeat, score.notes]);
 
   return (
     <section className="kalimba-score">
@@ -299,6 +307,19 @@ function KalimbaScore({ score }) {
               aria-label="音量"
             />
           </label>
+          <label className="score-hispeed">
+            <span>Hi-Speed</span>
+            <input
+              type="range"
+              min="0.8"
+              max="3"
+              step="0.1"
+              value={displaySpeed}
+              onChange={handleDisplaySpeedChange}
+              aria-label="Hi-Speed"
+            />
+            <output>×{displaySpeed.toFixed(1)}</output>
+          </label>
         </div>
       </div>
         <div className="score-surface">
@@ -312,7 +333,7 @@ function KalimbaScore({ score }) {
               <div
                 key={`measure-${index + 1}`}
                 className="measure-block"
-                style={{ height: PIXELS_PER_BEAT * beatsPerMeasure }}
+                style={{ height: pxPerBeat * beatsPerMeasure }}
               >
                 <span>{index + 1}</span>
               </div>
@@ -322,7 +343,7 @@ function KalimbaScore({ score }) {
             className="grid-wrapper"
           style={{
             height: gridHeight,
-            '--px-per-beat': `${PIXELS_PER_BEAT}px`,
+            '--px-per-beat': `${pxPerBeat}px`,
             '--beats-per-measure': beatsPerMeasure,
             '--tine-count': KALIMBA_TINES.length,
           }}
@@ -334,8 +355,8 @@ function KalimbaScore({ score }) {
                 className={`tine-track note-${KALIMBA_TINES[tineIndex].note}`}
               >
                 {trackNotes.map((note) => {
-                  const noteHeight = Math.max(note.duration * PIXELS_PER_BEAT - 6, 18);
-                    const noteTop = gridHeight - (note.start + note.duration) * PIXELS_PER_BEAT;
+                  const noteHeight = Math.max(note.duration * pxPerBeat - 6, 18);
+                    const noteTop = gridHeight - (note.start + note.duration) * pxPerBeat;
 
                     return (
                       <div
