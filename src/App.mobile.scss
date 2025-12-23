@@ -1,0 +1,12 @@
+﻿@use "./mixin.scss" as mixin;
+
+@include mixin.mobile {
+  .score-list-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .score-detail-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

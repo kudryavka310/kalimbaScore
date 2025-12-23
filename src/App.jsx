@@ -1,7 +1,13 @@
-import './App.scss';
-import KalimbaScore from './components/KalimbaScore.jsx';
+﻿import './App.scss';
+import { useMemo, useState } from 'react';
+import KalimbaScore from './components/KalimbaScore/KalimbaScore.jsx';
+import { hartmannFull } from './data/hartmann.js';
+import { hartmannMelody } from './data/hartmann_melody.js';
+import { mayaThemeKalimba } from './data/maya_theme_kalimba.js';
+import { tokinoKairoKalimba } from './data/tokino_kairo_kalimba.js';
 
 const demoScore = {
+  id: 'twinkle-1',
   title: 'Twinkle Twinkle Little Star',
   subtitle: 'Key: C / 4-4 time',
   tempo: 88,
@@ -63,16 +69,59 @@ const demoScore = {
   ],
 };
 
+const scores = [
+  demoScore,
+  mayaThemeKalimba,
+  tokinoKairoKalimba,
+];
+
 function App() {
+  const [selectedId, setSelectedId] = useState(scores[0].id);
+  const [view, setView] = useState('list'); // 'list' | 'detail'
+  const selectedScore = useMemo(
+    () => scores.find((item) => item.id === selectedId) ?? scores[0],
+    [selectedId],
+  );
+
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="app-brand">
-          <p className="app-version">v0.5</p>
-          <h1>Kalimba Score Viewer</h1>
-        </div>
-      </header>
-      <KalimbaScore score={demoScore} />
+      {view === 'list' ? (
+        <main className="score-list-page">
+          <div className="score-list-head">
+            <h2>スコア一覧</h2>
+            <p>曲を選んで開く</p>
+          </div>
+          <div className="score-list-grid">
+            {scores.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="score-card"
+                onClick={() => {
+                  setSelectedId(item.id);
+                  setView('detail');
+                }}
+              >
+                <span className="score-card__title">{item.title}</span>
+                {item.subtitle ? <span className="score-card__subtitle">{item.subtitle}</span> : null}
+                <span className="score-card__meta">
+                  {item.tempo} BPM / {item.scale} / {item.timeSignature.beats}-{item.timeSignature.noteValue}
+                </span>
+              </button>
+            ))}
+          </div>
+        </main>
+      ) : (
+        <main className="score-detail-page">
+          <div className="score-detail-head">
+            <button type="button" className="back-button" onClick={() => setView('list')}>
+              前に戻る
+            </button>
+          </div>
+          <KalimbaScore score={selectedScore} />
+        </main>
+      )}
+      <footer className="app-footer">カリンバスコアビューアー / 2025-2026 Amazing Anziehend Azarashi</footer>
     </div>
   );
 }
