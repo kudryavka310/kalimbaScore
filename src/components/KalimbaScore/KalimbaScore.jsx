@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const BASE_PIXELS_PER_BEAT = 48;
-const HIT_WINDOW_BEATS = 0.12; // 判定ライン通過と見なすビート幅（片側）
-const HITLINE_FROM_BOTTOM_PX = 0; // 判定ラインを表示エリア最下部に配置（必要ならここでオフセット調整）
+const HIT_WINDOW_BEATS = 0.12; // 判定ライン付近の判定幅（拍）
+const HITLINE_FROM_BOTTOM_PX = 0; // 判定ラインを下から何pxに置くか
 const OCTAVE_SHIFT = 0;
-const END_PADDING_BEATS = 13; // 末尾の余白ビート
+const END_PADDING_BEATS = 13; // 終端に足す余白（拍）
 const A4_FREQUENCY = 440;
 const NOTE_OFFSETS_FROM_A = {
   C: -9,
@@ -174,6 +174,7 @@ function KalimbaScore({ score }) {
   const [activeNoteIds, setActiveNoteIds] = useState(new Set());
   const [paddingBeats, setPaddingBeats] = useState(END_PADDING_BEATS);
   const [displaySpeed, setDisplaySpeed] = useState(1);
+  const [isMetaOpen, setIsMetaOpen] = useState(false);
   const beatsPerMeasure = score.timeSignature.beats;
   const fallbackBeats = score.notes.length
     ? Math.max(...score.notes.map((note) => note.start + note.duration))
@@ -242,7 +243,7 @@ function KalimbaScore({ score }) {
     const tick = () => {
       const beatPos = getCurrentBeat();
 
-      // ノーツが判定ライン付近かどうかを算出
+      // 判定ライン付近のノートをアクティブにする
       const windowBeats = HIT_WINDOW_BEATS;
       const nextActive = new Set();
       score.notes.forEach((note) => {
@@ -266,17 +267,15 @@ function KalimbaScore({ score }) {
 
   return (
     <section className="kalimba-score">
-      <div className="score-meta">
-        <div>
-          <p className="score-title">{score.title}</p>
-          {score.subtitle ? <p className="score-subtitle">{score.subtitle}</p> : null}
+      <div className={`score-meta${isMetaOpen ? ' is-open' : ''}`}>
+        <div className="score-titles">
+          <p className="score-title">曲名: {score.title}</p>
         </div>
         <div className="score-info">
           <span>
             {score.timeSignature.beats}/{score.timeSignature.noteValue}
           </span>
           <span>{score.tempo} BPM</span>
-          <span>{score.scale} key</span>
         </div>
         <div className="score-controls">
           <button
@@ -288,14 +287,21 @@ function KalimbaScore({ score }) {
                 : play(
                     score.notes,
                     score.tempo,
-                    totalBeats, // 再生は実ビート数までで止める（余白ビートは表示専用）
-                    volume,
+                    totalBeats, // 再生時間の計算に使う
                   )
             }
           >
             {isPlaying ? '停止' : '再生'}
           </button>
-          <label className="score-volume">
+          <button
+            type="button"
+            className="score-detail-toggle"
+            aria-expanded={isMetaOpen}
+            onClick={() => setIsMetaOpen((prev) => !prev)}
+          >
+            {isMetaOpen ? '閉じる' : '詳細'}
+          </button>
+                    <label className="score-volume">
             <span>音量</span>
             <input
               type="range"
@@ -333,7 +339,10 @@ function KalimbaScore({ score }) {
               <div
                 key={`measure-${index + 1}`}
                 className="measure-block"
-                style={{ height: pxPerBeat * beatsPerMeasure }}
+                style={{
+                  height: pxPerBeat * beatsPerMeasure,
+                  flexShrink: 0,
+                }}
               >
                 <span>{index + 1}</span>
               </div>
@@ -401,3 +410,6 @@ function KalimbaScore({ score }) {
 }
 
 export default KalimbaScore;
+
+
+

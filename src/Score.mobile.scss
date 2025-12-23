@@ -1,0 +1,129 @@
+﻿@use "./mixin.scss" as mixin;
+@use "./variables.scss" as vars;
+
+@include mixin.mobile {
+  .app {
+    padding: 1.25rem 0.5rem 2rem;
+    height: auto;
+    gap: 0.75rem;
+  }
+
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .app-brand {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .app-actions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+  }
+
+  .kalimba-score {
+    padding: 0.75rem;
+    border-radius: 16px;
+  }
+
+  .score-surface {
+    gap: 0.75rem;
+  }
+
+  .score-meta {
+    flex-direction: wrap;
+    gap: 0.35rem;
+  }
+
+  .score-titles{
+    position: absolute;
+    top: vars.$app-padding;
+    right: vars.$app-padding;
+    padding: 0.4rem;
+    border-radius: 10px;
+    background-color: #fff;
+  }
+
+  .score-title {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .score-info {
+    width: 20%;
+    justify-content: start;
+    flex-flow: row;
+    font-size: 0.8rem;
+    gap: 0.25rem;
+  }
+
+  .score-play {
+    border: 1px solid #111827;
+    background: #111827;
+    color: #fff;
+    padding: 0.45rem 0.45rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.2s ease, background 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .score-scroll {
+    flex-direction: row;
+    padding: 0 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .measure-rail {
+    width: 2%;
+    flex-direction: column;
+    align-items: center;
+    height: auto !important;
+    padding: 0.35rem 0.5rem;
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.35rem;
+  }
+
+  .measure-block {
+    flex: none;
+    min-width: 44px;
+    height: auto !important;
+    border-left: none;
+    border-bottom: 2px solid #1f2937;
+    justify-content: center;
+    padding: 0.15rem 0 0.25rem;
+  }
+
+  .grid-wrapper {
+    padding: 0 0.25rem;
+  }
+
+  .score-footer {
+    flex-direction: column;
+    padding: 0;
+    gap: 0.75rem;
+  }
+
+  .footer-spacer {
+    display: none;
+  }
+
+  .tine-footer {
+    padding: 0.5rem;
+    overflow-x: auto;
+  }
+}

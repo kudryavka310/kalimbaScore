@@ -1,0 +1,69 @@
+﻿@media (max-width: 768px) and (orientation: landscape) {
+  .app {
+    min-height: 100vh;
+    height: 100vh;
+  }
+
+  .score-list-page,
+  .score-detail-page {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+  }
+
+  .kalimba-score {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .score-surface {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .score-scroll {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .score-meta {
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .score-controls {
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .score-meta .score-titles,
+  .score-meta .score-info,
+  .score-meta .score-volume,
+  .score-meta .score-hispeed {
+    display: none;
+  }
+
+  .score-meta.is-open .score-titles {
+    display: block;
+  }
+
+  .score-meta.is-open .score-info,
+  .score-meta.is-open .score-volume,
+  .score-meta.is-open .score-hispeed {
+    display: flex;
+  }
+
+  .score-detail-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    border-radius: 10px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #111827;
+    cursor: pointer;
+  }
+}

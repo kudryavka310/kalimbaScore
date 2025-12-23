@@ -1,6 +1,6 @@
-import './App.scss';
+﻿import './App.scss';
 import { useMemo, useState } from 'react';
-import KalimbaScore from './components/KalimbaScore.jsx';
+import KalimbaScore from './components/KalimbaScore/KalimbaScore.jsx';
 import { hartmannFull } from './data/hartmann.js';
 import { hartmannMelody } from './data/hartmann_melody.js';
 import { mayaThemeKalimba } from './data/maya_theme_kalimba.js';
@@ -71,8 +71,6 @@ const demoScore = {
 
 const scores = [
   demoScore,
-  hartmannFull,
-  hartmannMelody,
   mayaThemeKalimba,
   tokinoKairoKalimba,
 ];
@@ -87,12 +85,6 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <div className="app-brand">
-          <p className="app-version">v0.5</p>
-          <h1>Kalimba Score Viewer</h1>
-        </div>
-      </header>
       {view === 'list' ? (
         <main className="score-list-page">
           <div className="score-list-head">
@@ -123,18 +115,13 @@ function App() {
         <main className="score-detail-page">
           <div className="score-detail-head">
             <button type="button" className="back-button" onClick={() => setView('list')}>
-              ← 一覧に戻る
+              前に戻る
             </button>
-            <div className="score-detail-text">
-              <p className="score-detail-title">{selectedScore.title}</p>
-              {selectedScore.subtitle ? (
-                <p className="score-detail-subtitle">{selectedScore.subtitle}</p>
-              ) : null}
-            </div>
           </div>
           <KalimbaScore score={selectedScore} />
         </main>
       )}
+      <footer className="app-footer">カリンバスコアビューアー / 2025-2026 Amazing Anziehend Azarashi</footer>
     </div>
   );
 }
