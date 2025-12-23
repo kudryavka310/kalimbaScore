@@ -2,7 +2,7 @@
 
 .app {
   width: min(1100px, 100%);
-  min-height: 100vh;
+  height: 100%;
   padding: vars.$app-padding;
   display: flex;
   flex-direction: column;
