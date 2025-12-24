@@ -1,7 +1,10 @@
 ﻿@media (orientation: landscape) and (max-height: 500px) {
-  .app-footer {
-    font-size: 0.7rem;
-    padding: 0.25rem 0;
+  .app{
+    &-footer{
+      text-align: center;
+      font-size: 0.7rem;
+      padding: 0.25rem 0;      
+    }
   }
 }
 
