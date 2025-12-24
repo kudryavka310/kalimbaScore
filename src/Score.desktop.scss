@@ -1,3 +1,4 @@
+@use "./variables.scss" as vars;
 .kalimba-score {
   width: 100%;
   height: 100%;
@@ -20,6 +21,7 @@
   gap: 1rem;
   border-bottom: 1px solid #eceef5;
   padding-bottom: 0.75rem;
+  padding-right: 7.5rem;
   flex-shrink: 0;
 }
 
@@ -44,14 +46,39 @@
   font-weight: 600;
 }
 
-.score-controls {
-  display: flex;
+.score-actions {
+  position: absolute;
+  top: vars.$app-padding;
+  right: vars.$app-padding;
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  z-index: 40;
 }
 
 .score-detail-toggle {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #111827;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.score-detail-toggle:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.score-detail-toggle:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
 }
 
 .score-play {
@@ -101,6 +128,105 @@
 .score-volume input[type='range'] {
   accent-color: #0f172a;
   width: 140px;
+}
+
+.score-hispeed {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.score-hispeed input[type='range'] {
+  accent-color: #0f172a;
+  width: 140px;
+}
+
+.score-hispeed output {
+  min-width: 3ch;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.score-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.score-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+}
+
+.score-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(440px, 92vw);
+  background: #fff;
+  border-radius: 18px;
+  padding: 1rem 1.2rem 1.1rem;
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
+}
+
+.score-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.6rem;
+}
+
+.score-modal-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.score-modal-close {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 10px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #111827;
+  cursor: pointer;
+}
+
+.score-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding-top: 0.8rem;
+}
+
+.score-modal-song {
+  margin: 0;
+  font-weight: 700;
+  color: #111827;
+}
+
+.score-modal-meta {
+  display: flex;
+  gap: 0.6rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.score-modal-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
 .score-surface {

@@ -1,4 +1,5 @@
-﻿@media (orientation: landscape) and (max-height: 500px) {
+﻿@use "./variables.scss" as vars;
+@media (orientation: landscape) and (max-height: 500px) {
   .app {
     min-height: 100vh;
     height: 100vh;
@@ -7,7 +8,6 @@
   .score-list-page,
   .score-detail-page {
     flex: 1;
-    min-height: 0;
     height: auto;
   }
 
@@ -29,17 +29,25 @@
   .score-meta {
     align-items: center;
     gap: 0.4rem;
+    padding-right: 5.5rem;
   }
 
-  .score-controls {
-    gap: 0.4rem;
-    flex-wrap: wrap;
+  .score-actions {
+    gap: 0.35rem;
+  }
+
+  .score-play {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.75rem;
+  }
+
+  .score-detail-toggle {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
   }
 
   .score-meta .score-titles,
-  .score-meta .score-info,
-  .score-meta .score-volume,
-  .score-meta .score-hispeed {
+  .score-meta .score-info {
     display: none;
   }
 
@@ -47,24 +55,8 @@
     display: block;
   }
 
-  .score-meta.is-open .score-info,
-  .score-meta.is-open .score-volume,
-  .score-meta.is-open .score-hispeed {
+  .score-meta.is-open .score-info {
     display: flex;
-  }
-
-  .score-detail-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    border-radius: 10px;
-    padding: 0.3rem 0.5rem;
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: #111827;
-    cursor: pointer;
   }
 }
 

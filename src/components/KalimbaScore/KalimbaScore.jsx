@@ -267,6 +267,31 @@ function KalimbaScore({ score }) {
 
   return (
     <section className="kalimba-score">
+      <div className="score-actions">
+        <button
+          type="button"
+          className={`score-play${isPlaying ? ' is-playing' : ''}`}
+          onClick={() =>
+            isPlaying
+              ? stop()
+              : play(
+                  score.notes,
+                  score.tempo,
+                  totalBeats, // 再生時間の計算に使う
+                )
+          }
+        >
+          {isPlaying ? '停止' : '再生'}
+        </button>
+        <button
+          type="button"
+          className="score-detail-toggle"
+          aria-expanded={isMetaOpen}
+          onClick={() => setIsMetaOpen((prev) => !prev)}
+        >
+          {isMetaOpen ? '閉じる' : '詳細'}
+        </button>
+      </div>
       <div className={`score-meta${isMetaOpen ? ' is-open' : ''}`}>
         <div className="score-titles">
           <p className="score-title">曲名: {score.title}</p>
@@ -277,58 +302,8 @@ function KalimbaScore({ score }) {
           </span>
           <span>{score.tempo} BPM</span>
         </div>
-        <div className="score-controls">
-          <button
-            type="button"
-            className={`score-play${isPlaying ? ' is-playing' : ''}`}
-            onClick={() =>
-              isPlaying
-                ? stop()
-                : play(
-                    score.notes,
-                    score.tempo,
-                    totalBeats, // 再生時間の計算に使う
-                  )
-            }
-          >
-            {isPlaying ? '停止' : '再生'}
-          </button>
-          <button
-            type="button"
-            className="score-detail-toggle"
-            aria-expanded={isMetaOpen}
-            onClick={() => setIsMetaOpen((prev) => !prev)}
-          >
-            {isMetaOpen ? '閉じる' : '詳細'}
-          </button>
-                    <label className="score-volume">
-            <span>音量</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={volume}
-              onChange={handleVolumeChange}
-              aria-label="音量"
-            />
-          </label>
-          <label className="score-hispeed">
-            <span>Hi-Speed</span>
-            <input
-              type="range"
-              min="0.8"
-              max="3"
-              step="0.1"
-              value={displaySpeed}
-              onChange={handleDisplaySpeedChange}
-              aria-label="Hi-Speed"
-            />
-            <output>×{displaySpeed.toFixed(1)}</output>
-          </label>
-        </div>
       </div>
-        <div className="score-surface">
+      <div className="score-surface">
           <div
             className="judge-line"
             aria-hidden
@@ -405,6 +380,71 @@ function KalimbaScore({ score }) {
           </div>
         </div>
       </div>
+      {isMetaOpen && (
+        <div className="score-modal">
+          <button
+            type="button"
+            className="score-modal-backdrop"
+            onClick={() => setIsMetaOpen(false)}
+            aria-label="閉じる"
+          />
+          <div
+            className="score-modal-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="score-modal-title"
+          >
+            <div className="score-modal-header">
+              <h3 id="score-modal-title">詳細</h3>
+              <button
+                type="button"
+                className="score-modal-close"
+                onClick={() => setIsMetaOpen(false)}
+              >
+                閉じる
+              </button>
+            </div>
+            <div className="score-modal-content">
+              <div className="score-modal-info">
+                <p className="score-modal-song">曲名: {score.title}</p>
+                <div className="score-modal-meta">
+                  <span>
+                    {score.timeSignature.beats}/{score.timeSignature.noteValue}
+                  </span>
+                  <span>{score.tempo} BPM</span>
+                </div>
+              </div>
+              <div className="score-modal-controls">
+                <label className="score-volume">
+                  <span>音量</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={volume}
+                    onChange={handleVolumeChange}
+                    aria-label="音量"
+                  />
+                </label>
+                <label className="score-hispeed">
+                  <span>Hi-Speed</span>
+                  <input
+                    type="range"
+                    min="0.8"
+                    max="3"
+                    step="0.1"
+                    value={displaySpeed}
+                    onChange={handleDisplaySpeedChange}
+                    aria-label="Hi-Speed"
+                  />
+                  <output>×{displaySpeed.toFixed(1)}</output>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
